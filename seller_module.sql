@@ -6,9 +6,7 @@
 -- procedure to get seller products
 delimiter //
 create procedure get_seller_products(
-	seller_id varchar(50),
-    off int,
-    lim int
+	seller_id varchar(50)
 )
 begin
     declare seller_count int;
@@ -16,7 +14,7 @@ begin
     select count(*) into seller_count from seller_port where port_id=seller_id;
 	
     if seller_count > 0 then
-		select * from products as p where p.seller_id = seller_id limit lim offset off;
+		select * from products as p where p.seller_id = seller_id;
     else
 		select "No seller exist";
 	end if;
@@ -92,7 +90,7 @@ end //
 delimiter ;
 
 delimiter //
-create procedure view_orders(seller_id varchar(40))
+create procedure get_seller_orders(seller_id varchar(40))
 begin
 	declare seller_exists int;
     
@@ -103,8 +101,10 @@ begin
 		orders.order_id, 
 		orders.product_id, 
 		products.product_name,
+        products.price,
 		orders.consumer_port_id, 
 		orders.quantity, 
+        (orders.quantity * products.price) as cost,
 		orders.order_date,
 		orders.order_placed, 
 		orders.shipped, 
@@ -209,9 +209,8 @@ begin
 end //
 delimiter ;
 
-
 delimiter //
-create procedure view_reported_products(seller_id varchar(50), off int, lim int)
+create procedure get_seller_reported_products(seller_id varchar(50))
 begin
     declare seller_exists int;
     select count(*) into seller_exists from seller_port sp where sp.port_id=seller_id;
@@ -219,14 +218,16 @@ begin
         select 
 			r.report_id, 
             r.consumer_port_id, 
-            r.product_id, r.issue_type, 
+            r.product_id,
+            p.product_name,
+            r.issue_type, 
             r.solution, 
             r.report_date
 		from reported_products as r
 		join products p on r.product_id = p.product_id
-		where p.seller_id = seller_id limit lim offset off;
+		where p.seller_id = seller_id;
     else
-        select "Entered seller id is Invalid" as MESSAGE;
+        select "No such seller id exists" as MESSAGE;
     end if;
 end //
 delimiter ;

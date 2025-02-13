@@ -147,7 +147,9 @@ VALUES
     
 select * from products;
 call search_products("Gam");
-    
+
+-- Test get consumer products 
+call get_consumer_orders("C001");
 
 
 

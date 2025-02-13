@@ -77,6 +77,8 @@ begin
 		p.product_name like concat("%",product_name,"%") ;
 end //
 delimiter ;
+
+use import_export_db;
 drop procedure search_products;
 
 -- procedure to get product
@@ -156,6 +158,61 @@ end //
 
 delimiter ;
 
+delimiter //
+create procedure get_consumer_reported_products(consumer_port_id varchar(50))
+begin
+    declare consumer_exists int;
+    select count(*) into consumer_exists from consumer_port cp where cp.port_id=consumer_port_id;
+    if consumer_exists>0 then
+        select 
+			r.report_id, 
+            r.consumer_port_id, 
+            r.product_id, 
+            r.issue_type,
+            p.product_name,
+            r.solution, 
+            r.report_date
+		from reported_products as r
+		join products as p on r.product_id = p.product_id
+		where r.consumer_port_id = consumer_port_id ;
+    else
+        select "No such consumer id exists" as MESSAGE;
+    end if;
+end //
+delimiter ;
+
+-- procedure to view_consumer_orders
+delimiter //
+
+create procedure get_consumer_orders(consumer_port_id varchar(50))
+begin
+	declare consumer_exists int;
+    
+    select count(*) into consumer_exists from consumer_port cp where cp.port_id=consumer_port_id;
+    
+    if consumer_exists > 0 then
+        select 
+		orders.order_id, 
+		orders.product_id, 
+		products.product_name,
+		orders.consumer_port_id, 
+		products.price,
+        orders.quantity, 
+        (orders.quantity * products.price) as cost,
+		orders.order_date,
+		orders.order_placed, 
+		orders.shipped, 
+		orders.out_for_delivery, 
+		orders.delivered
+    from orders
+    join products on products.product_id = orders.product_id
+    where orders.consumer_port_id = consumer_port_id;
+    else
+        select "No such consumer id exist" as MESSAGE;
+    end if;
+end//
+delimiter ;
+drop procedure get_consumer_orders;
 -- procedure to update consumer profile
 -- @Lobhan
 

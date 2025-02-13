@@ -20,7 +20,7 @@ create table backup_consumer_port like consumer_port;
     
 create table seller_port(
 	port_id varchar(50) primary key,
-    password varchar(255) not null,
+    password varchar(255) not null,get_product
     location varchar(255) not null,
     role varchar(25) not null,
     check (port_id regexp '^[a-zA-Z0-9]+$'),

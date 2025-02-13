@@ -55,6 +55,8 @@ SELECT login_user('user1', "' OR '1'='1", 'consumer');
 
 -- Test Case 14: Autheticating the user
 CALL authenticate_user('user1','pass123','consumer');
+
+CALL authenticate_user("seller1","pass123","seller");
 -- Expected Output: users data
 
 -- Insert test data
