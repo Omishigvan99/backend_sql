@@ -149,7 +149,7 @@ SELECT * FROM reported_products WHERE report_id=1;
 
 -- Verify backup delete trigger
 SELECT * FROM backup_reported_products WHERE report_id=1;
-
+use import_export_db;
 -- 16. Truncate All Tables
 TRUNCATE TABLE reported_products;
 TRUNCATE TABLE backup_reported_products;

@@ -16,11 +16,11 @@ BEGIN
 		IF role = "consumer" THEN
 			INSERT INTO consumer_port (port_id, password, location, role)
 			VALUES (port_id, c_pass, location, role);
-			SELECT CONCAT("Consumer ", port_id, " registered successfully") AS message;
+			SELECT port_id AS port_id;
 		ELSEIF role = "seller" THEN
 			INSERT INTO seller_port (port_id, password, location, role)
 			VALUES (port_id, c_pass, location, role);
-			SELECT CONCAT("Seller ", port_id, " registered successfully") AS message;
+			SELECT port_id AS port_id;
 		ELSE
 			SELECT "Invalid role" AS message;
 		END IF;

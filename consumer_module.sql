@@ -15,12 +15,38 @@ begin
 		set curr_date = curdate();
 		insert into orders (product_id, consumer_port_id, quantity, order_date, order_placed, shipped, out_for_delivery, delivered) 
         values(product_id, consumer_port_id, quantity, curr_date, true, false, false, false);
+        
+        update products as p set quantity= product_quantity - quantity where p.product_id = product_id;
+        
         select "placed order successfully";
     else
 		select "failed to place order";
     end if;
 end//
 delimiter ;
+
+-- Procedure to delete orders
+DELIMITER //
+CREATE PROCEDURE delete_consumer_order(
+    IN order_id INT
+)
+BEGIN
+    DECLARE order_exists INT;
+    
+    -- Check if the order exists
+    SELECT COUNT(*) INTO order_exists FROM orders WHERE orders.order_id = order_id;
+    
+    IF order_exists > 0 THEN
+        -- Delete from orders table
+        DELETE FROM orders WHERE orders.order_id = order_id;
+        
+        SELECT 'Order deleted successfully' AS message;
+    ELSE
+        SELECT 'No such order exists' AS message;
+    END IF;
+END //
+DELIMITER ;
+
 
 -- procedure to track
 -- @Omkar
@@ -93,7 +119,7 @@ delimiter ;
 delimiter //
 
 -- procedure to report products
-create procedure report_product(
+create procedure reporadd_productt_product(
     in consumer_port_id varchar(50), 
     in product_id int, 
     in issue_type varchar(50)
@@ -158,6 +184,28 @@ end //
 
 delimiter ;
 
+-- Procedure to delete reported products
+DELIMITER //
+CREATE PROCEDURE delete_reported_product(
+    IN report_id INT
+)
+BEGIN
+    DECLARE report_exists INT;
+    
+    -- Check if the report exists
+    SELECT COUNT(*) INTO report_exists FROM reported_products WHERE reported_products.report_id = report_id;
+    
+    IF report_exists > 0 THEN
+        -- Delete from reported_products table
+        DELETE FROM reported_products WHERE reported_products.report_id = report_id;
+        
+        SELECT 'Reported product deleted successfully' AS message;
+    ELSE
+        SELECT 'No such report exists' AS message;
+    END IF;
+END //
+DELIMITER ;
+
 delimiter //
 create procedure get_consumer_reported_products(consumer_port_id varchar(50))
 begin
@@ -212,7 +260,6 @@ begin
     end if;
 end//
 delimiter ;
-drop procedure get_consumer_orders;
 -- procedure to update consumer profile
 -- @Lobhan
 

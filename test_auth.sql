@@ -54,7 +54,7 @@ SELECT login_user('user1', "' OR '1'='1", 'consumer');
 -- Expected Output: 0 (FALSE)
 
 -- Test Case 14: Autheticating the user
-CALL authenticate_user('user1','pass123','consumer');
+CALL authenticate_user('user1','pass123','consumer');authenticate_userauthenticate_userauthenticate_userconsumer_portconsumer_portbackup_seller_portbackup_reported_products
 
 CALL authenticate_user("seller1","pass123","seller");
 -- Expected Output: users data

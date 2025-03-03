@@ -158,7 +158,10 @@ begin
 
     if order_count > 0 then
         update orders
-        set shipped = shipped
+        set shipped = shipped,
+            order_placed = true,
+            out_for_delivery=false,
+            delivered = false
         where orders.order_id = order_id;
         select 'order status updated successfully' as message;
     else
@@ -179,7 +182,10 @@ begin
 
     if order_count > 0 then
         update orders
-        set out_for_delivery = out_for_delivery
+        set out_for_delivery = out_for_delivery,
+			shipped = true,
+            order_placed = true,
+            delivered = false
         where orders.order_id = order_id;
         select 'order status updated successfully' as message;
     else
@@ -199,10 +205,13 @@ begin
     select count(*) into order_count from orders where orders.order_id = order_id;
 
     if order_count > 0 then
-        update orders
-        set delivered = delivered
-        where orders.order_id = order_id;
-        select 'order status updated successfully' as message;
+		update orders
+		set delivered = delivered, 
+			out_for_delivery= true, 
+			shipped = true,
+			order_placed = true
+		where orders.order_id = order_id;
+		select 'order status updated successfully' as message;
     else
         select 'no such order exists';
     end if;
@@ -267,7 +276,89 @@ begin
     end if;
 end //
 delimiter ;
-drop procedure generate_sales_report;
+
+-- Procedure to get dashboard statistics
+delimiter //
+create procedure get_dashboard_stats(
+    seller_id varchar(50),
+    period_start date,
+    period_end date
+)
+begin
+    -- Total sales, orders, and average order value
+    select 
+        sum(p.price * o.quantity) as total_sales,
+        count(distinct o.order_id) as total_orders,
+        avg(p.price * o.quantity) as avg_order_value
+    from orders o
+    join products p on o.product_id = p.product_id
+    where p.seller_id = seller_id
+    and o.order_date between period_start and period_end;
+end //
+delimiter ;
+
+-- Procedure to get monthly/annual growth rates
+delimiter //
+create procedure get_sales_growth(
+    seller_id varchar(50),
+    current_period_start date,
+    current_period_end date,
+    previous_period_start date,
+    previous_period_end date
+)
+begin
+    declare current_sales decimal(12,2);
+    declare previous_sales decimal(12,2);
+    
+    -- Get current period sales
+    select coalesce(sum(p.price * o.quantity), 0)
+    into current_sales
+    from orders o
+    join products p on o.product_id = p.product_id
+    where p.seller_id = seller_id
+    and o.order_date between current_period_start and current_period_end;
+    
+    -- Get previous period sales
+    select coalesce(sum(p.price * o.quantity), 0)
+    into previous_sales
+    from orders o
+    join products p on o.product_id = p.product_id
+    where p.seller_id = seller_id
+    and o.order_date between previous_period_start and previous_period_end;
+    
+    -- Calculate growth rate
+    select 
+        current_sales as current_period_sales,
+        previous_sales as previous_period_sales,
+        case 
+            when previous_sales > 0 then ((current_sales - previous_sales) / previous_sales * 100)
+            else 0 
+        end as growth_rate;
+end //
+delimiter ;
+
+-- Procedure to get periodic sales data for the table
+delimiter //
+create procedure get_sales_table_data(
+    seller_id varchar(50),
+    start_date date,
+    end_date date
+)
+begin
+    select 
+        date_format(o.order_date, '%b %Y') as period,
+        count(distinct o.order_id) as total_orders,
+        sum(p.price * o.quantity) as total_sales,
+        avg(p.price * o.quantity) as avg_order_value,
+        lag(sum(p.price * o.quantity)) over (order by min(o.order_date)) as prev_period_sales
+    from orders o
+    join products p on o.product_id = p.product_id
+    where p.seller_id = seller_id
+    and o.order_date between start_date and end_date
+    group by date_format(o.order_date, '%Y-%m')
+    order by min(o.order_date);
+end //
+delimiter ;
 
 delimiter //
 create trigger update_validate_product

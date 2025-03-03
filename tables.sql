@@ -35,7 +35,7 @@ create table products(
     product_name varchar(50) not null,
     quantity int not null,
     price decimal(10,2) not null
-    check(price > 0)
+seller_port    check(price > 0)
 );
 
 create table backup_products like products;
@@ -265,3 +265,23 @@ begin
     where bp.product_id = old.product_id;  
 end//
 delimiter ;
+
+-- Trigger to delete reported products from backup table when deleted from main table
+DELIMITER //
+CREATE TRIGGER delete_reported_products_backup
+AFTER DELETE ON reported_products
+FOR EACH ROW
+BEGIN
+    DELETE FROM backup_reported_products WHERE backup_reported_products.report_id = OLD.report_id;
+END //
+DELIMITER ;
+
+-- Trigger to delete orders from backup table when deleted from main table
+DELIMITER //
+CREATE TRIGGER delete_backup_orders
+AFTER DELETE ON orders
+FOR EACH ROW
+BEGIN
+    DELETE FROM backup_orders WHERE backup_orders.order_id = OLD.order_id ;
+END //
+DELIMITER ;
