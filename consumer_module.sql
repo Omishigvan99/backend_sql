@@ -119,7 +119,7 @@ delimiter ;
 delimiter //
 
 -- procedure to report products
-create procedure reporadd_productt_product(
+create procedure report_product(
     in consumer_port_id varchar(50), 
     in product_id int, 
     in issue_type varchar(50)

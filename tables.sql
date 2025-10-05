@@ -34,7 +34,8 @@ create table products(
     seller_id varchar(50) not null references seller_port.port_id ,
     product_name varchar(50) not null,
     quantity int not null,
-    price decimal(10,2) not null
+    price decimal(10,2) not null,
+    image_url varchar(255),
 	check(price > 0)
 );
 
