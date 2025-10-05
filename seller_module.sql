@@ -21,22 +21,21 @@ begin
 end //
 delimiter ;
 
-drop procedure get_seller_products;
-
 -- procedures for adding product
 delimiter //
 create procedure add_product(
 	seller_id varchar(40), 
 	product_name varchar(40), 
 	quantity int, 
-	price decimal(12,2)
+	price decimal(12,2),
+    image_url varchar(255)
 )
 begin
     declare seller_exists int;
     select count(*) into seller_exists from seller_port sp where sp.port_id=seller_id;
     if seller_exists>0 then
-        insert into products(seller_id,product_name,quantity,price)
-        values(seller_id, product_name, quantity,price);
+        insert into products(seller_id,product_name,quantity,price,image_url)
+        values(seller_id, product_name, quantity,price,image_url);
         select "Product added successfully" as MESSAGE;
     else
         select "Entered seller id is Invalid" as MESSAGE;
@@ -50,7 +49,8 @@ create procedure update_product(
 	product_id int, 
 	product_name varchar(40), 
 	quantity int, 
-	price decimal(12,2)
+	price decimal(12,2),
+    image_url varchar(255)
 )
 begin
 	
@@ -63,7 +63,8 @@ begin
         set 
 			products.product_name=product_name, 
 			products.quantity=quantity, 
-            products.price=price 
+            products.price=price,
+            products.image_url=image_url
 		where products.product_id=product_id;
 		select "Product updated successfully" as MESSAGE;
     else

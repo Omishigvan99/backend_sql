@@ -20,7 +20,7 @@ create table backup_consumer_port like consumer_port;
     
 create table seller_port(
 	port_id varchar(50) primary key,
-    password varchar(255) not null,get_product
+    password varchar(255) not null,
     location varchar(255) not null,
     role varchar(25) not null,
     check (port_id regexp '^[a-zA-Z0-9]+$'),
@@ -35,7 +35,7 @@ create table products(
     product_name varchar(50) not null,
     quantity int not null,
     price decimal(10,2) not null
-seller_port    check(price > 0)
+	check(price > 0)
 );
 
 create table backup_products like products;
@@ -236,7 +236,8 @@ begin
 		new.seller_id,
         new.product_name, 
         new.quantity, 
-        new.price
+        new.price,
+        new.image_url
 	);
 end//
 delimiter ;
@@ -251,7 +252,8 @@ begin
 		bp.seller_id = new.seller_id,
         bp.product_name = new.product_name, 
         bp.quantity = new.quantity, 
-        bp.price = new.price
+        bp.price = new.price,
+        bp.image_url= new.image_url
 	where bp.product_id = new.product_id;
 end//
 delimiter ;
